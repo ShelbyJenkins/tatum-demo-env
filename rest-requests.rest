@@ -22,3 +22,7 @@ curl -i -X POST \
     "id": 2
   }'
 
+### BTC fee per byte
+curl -i -X GET \
+  'https://api.tatum.io/v3/blockchain/fee/BTC' \
+  -H "x-api-key": "{{$TATUMIO_API_KEY}}"

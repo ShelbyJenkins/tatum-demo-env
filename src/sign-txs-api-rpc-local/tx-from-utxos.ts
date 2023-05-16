@@ -1,41 +1,34 @@
 import fetch from 'node-fetch';
-import fs from 'fs/promises';
 import dotenv from 'dotenv';
+import sb from 'satoshi-bitcoin';
 
+// Need a library to convert values to satoshis
+
+// Amount to send
+const totalToSendinBTC: number = 0.0001;
+// Select fast, medium, or slow
+const feeType = "slow";
+
+const totalSendValue: number = sb.toSatoshi(totalToSendinBTC);
+
+// Load wallets to play with
 dotenv.config();
-
-// Pick a wallet "0", "1", "3"
-const sender = 1;
-const receiver  = 2;
-// amount to send
-const totalValue: number = 0.0001
-
-
-let senderAddress: string;
-let senderPrivateKey: string; 
-let receiverAddress: string; 
-
-async function readWalletsFile() {
-    try {
-        const fileContent = await fs.readFile('dist/wallets.json', 'utf-8');
-        const parsedContent = JSON.parse(fileContent);
-        
-
-        const senderWallet = parsedContent.wallets[sender];
-        const receiverWallet = parsedContent.wallets[receiver ];
-
-        senderAddress = senderWallet.address;
-        senderPrivateKey = senderWallet.privateKey;
-        receiverAddress = receiverWallet.address;
-
-        console.log('Sender Address:', senderAddress);
-        console.log('Sender Private Key:', senderPrivateKey);
-        console.log('Receiver Address:', receiverAddress);
-    } catch (error) {
-        console.error('Error reading or parsing wallets.json:', error);
+function getEnv(key: string): string {
+    const value = process.env[key];
+    if (!value) {
+      throw new Error(`Missing required environment variable: ${key}`);
     }
+    console.log(`Last six characters of ${key}: ${value.slice(-6)}`);
+    return value;
   }
 
+// Pick a wallet "0", "1", "2"
+const senderAddress: string = getEnv('WALLET_1_ADDRESS');
+const senderPrivateKey: string = getEnv('WALLET_1_PRIVATEKEY');
+const receiverAddress: string = getEnv('WALLET_2_ADDRESS');
+const apiKey: string = getEnv('TATUMIO_TESTNET_API_KEY');
+
+// Define Interfaces
 interface UtxosItem {
     txHash: string;
     index: number;
@@ -54,28 +47,49 @@ interface BroadcastTransactionResponse {
     };
 }
 interface FeesResponse {
-    Medium: number;
-    medium: number;
     fast: number;
+    medium: number;
+    slow: number;
 }
 
-async function estimateBaseFee(): Promise<number> {
-    const query = 'BTC';
-    const baseFeeResponse = await fetch(
-        `https://api.tatum.io/v3/blockchain/fee/${query}`,
-        {
-            method: 'GET',
-            headers: {
-                'x-api-key': process.env.APIKEY ?? '<>',
-            }
-        }
-    );
-    const baseFeeResponseJson = await baseFeeResponse.json() as FeesResponse;
-    return baseFeeResponseJson.medium;
+
+async function estimateTransactionFeeInitial(): Promise<number> {
+  // Estimates fee by scraping sender's UTXOs just like the fromUTXOs endpoint we'll use to build the tx
+  // This means there is a potential for this fee to be higher than needed
+  // So we'll estimate again after we have UTXOs for the transaction
+  const feesResponse = await fetch(
+    `https://api.tatum.io/v3/blockchain/estimate`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey ?? '<>',
+      },
+      body: JSON.stringify({
+        chain: 'BTC',
+        type: 'TRANSFER',
+        fromAddress: [
+          senderAddress
+        ],
+        to: [
+          {
+            address: receiverAddress,
+            value: totalSendValue
+          }
+        ]
+      })
+    }
+  );
+
+  if (!feesResponse.ok) {
+      throw new Error(`Error creating raw transaction: ${feesResponse.statusText}`);
+  }
+  const feesResponseJson = await feesResponse.json() as FeesResponse;
+  return  sb.toSatoshi(feesResponseJson[feeType]);
 }
 
-async function getUtxos(baseFee: number): Promise<UtxosItem[]> {
-    const estimatedBaseCost: number = totalValue + baseFee;
+async function getUtxos(feeInitial: number): Promise<UtxosItem[]> {
+    const estimatedBaseCost: number = sb.toBitcoin(totalSendValue + feeInitial);
     const query = new URLSearchParams({
         chain: 'bitcoin-testnet',
         address: senderAddress,
@@ -87,7 +101,7 @@ async function getUtxos(baseFee: number): Promise<UtxosItem[]> {
         {
             method: 'GET',
             headers: {
-                'x-api-key': process.env.APIKEY ?? '<>',
+                'x-api-key': apiKey ?? '<>',
             }
         }
     );
@@ -101,20 +115,20 @@ async function getUtxos(baseFee: number): Promise<UtxosItem[]> {
     const utxos: UtxosItem[] = utxoJson.map(({ txHash, index, value }) => ({
         txHash,
         index,
-        value,
+        value: sb.toSatoshi(value),
     }));
 
     return utxos;
 }
 
-async function estimateFee(filteredUtxoTxHashes): Promise<number> {
+async function estimateTotalTransactionFee(filteredUtxoTxHashes): Promise<number> {
     const feesResponse = await fetch(
         'https://api.tatum.io/v3/blockchain/estimate',
         {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': process.env.APIKEY ?? '<>',
+                'x-api-key': apiKey ?? '<>',
             },
             body: JSON.stringify({
                 chain: 'BTC',
@@ -123,7 +137,7 @@ async function estimateFee(filteredUtxoTxHashes): Promise<number> {
                 to: [
                     {
                         address: receiverAddress,
-                        value: totalValue,
+                        value: totalSendValue,
                     },
                 ],
             }),
@@ -133,8 +147,8 @@ async function estimateFee(filteredUtxoTxHashes): Promise<number> {
         throw new Error(`Error creating raw transaction: ${feesResponse.statusText}`);
     }
     const feesResponseJson = await feesResponse.json() as FeesResponse;
-    return feesResponseJson.medium;
-}
+    return  sb.toSatoshi(feesResponseJson[feeType]);
+  }
 
 async function createRawTransaction(utxos: UtxosItem[], fee: number, totalInputAmount: number): Promise<string> {
     const inputs = utxos.map(({ txHash, index }) => ({
@@ -142,9 +156,9 @@ async function createRawTransaction(utxos: UtxosItem[], fee: number, totalInputA
         vout: index,
     }));
     
-    const change = Number((totalInputAmount - totalValue - fee).toFixed(8));
+    const change = Number(sb.toBitcoin(totalInputAmount - totalSendValue - fee).toFixed(8));
     const outputs = {
-        [receiverAddress]: Number(totalValue.toFixed(8)),
+        [receiverAddress]: Number(sb.toBitcoin(totalSendValue).toFixed(8)),
         [senderAddress]: change,
     };
     
@@ -154,7 +168,7 @@ async function createRawTransaction(utxos: UtxosItem[], fee: number, totalInputA
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.APIKEY ?? '<>',
+            'x-api-key': apiKey,
         },
         body: JSON.stringify({
             jsonrpc: '2.0',
@@ -172,12 +186,13 @@ async function createRawTransaction(utxos: UtxosItem[], fee: number, totalInputA
     return result;
 }
 
+// This is included as a test example. Please do not send private keys
 async function signTransaction(rawTransaction: string): Promise<SignedTransactionResponse> {
     const response = await fetch('https://api.tatum.io/v3/blockchain/node/BTC', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.APIKEY ?? '<>',
+            'x-api-key': apiKey ?? '<>',
         },
         body: JSON.stringify({
             jsonrpc: '2.0',
@@ -200,7 +215,7 @@ async function broadcastTransaction(signedTransaction: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': process.env.APIKEY ?? '<>',
+      'x-api-key': apiKey ?? '<>',
     },
     body: JSON.stringify({
       jsonrpc: '2.0',
@@ -215,7 +230,7 @@ async function broadcastTransaction(signedTransaction: string) {
   }
 
   const result = await response.json() as BroadcastTransactionResponse;
-  console.log("Received result:", result);
+  console.log('Transaction broadcasted successfully:', result);
 
   // Updated check for errors in the result
   if (result?.result?.errors !== undefined && result.result.errors.length > 0) {
@@ -227,41 +242,40 @@ async function broadcastTransaction(signedTransaction: string) {
   }
 }
   
-
-
 async function main() {
-    readWalletsFile();
-    
-    // Estimate base fee to use and add create a totalValue + base fee
-    const baseFee: number = await estimateBaseFee() / 100000; // This doesn't seem to be estimating the fees correctly due to volitality.
-    console.log("baseFee: ", baseFee)
 
-    // Get UTXOs to send
-    const utxos = await getUtxos(baseFee);
+    // Estimate initial fee to use
+    const feeInitial: number = await estimateTransactionFeeInitial();
+
+    // Get UTXOs to send with initial fee estimate and tx inputs
+    const utxos = await getUtxos(feeInitial);
     
     // Find minumum number of UTXOs suitable for transfer OR a single that meets minimum needed for tx.
-    const suitableUtxo = utxos.find(utxo => utxo.value >= +totalValue + +baseFee);
+    const suitableUtxo = utxos.find(utxo => utxo.value >= +totalSendValue + +feeInitial);
     const totalInputAmount = suitableUtxo?.value ?? utxos.reduce((sum, utxo) => sum + utxo.value, 0);
     const filteredUtxos = suitableUtxo ? [suitableUtxo] : utxos;
     console.log("UTXOs for input: ", filteredUtxos);
 
     // Estimate fee with suitable UTXO(s).
-    const feeMedium = await estimateFee(filteredUtxos);
+    const feeFinal = await estimateTotalTransactionFee(filteredUtxos);
 
     // Calculate change to return to sender
-    const totalRequired = +totalValue + +feeMedium;
+    const totalRequired = +totalSendValue + +feeFinal;
     const change = +totalInputAmount - +totalRequired;
 
-    console.log("Total to send:", totalValue);
-    console.log("Fees:", feeMedium);
+    console.log("Total to send:", totalSendValue);
+    console.log("Fees:", feeFinal);
     console.log("Total required:", totalRequired);
     console.log(`TotalInputAmount from UTXOs: ${totalInputAmount}`);
-    console.log("Difference:", change);
+    console.log("Difference AKA 'change':", change);
 
     if (change > 0) {
         // Create and sign the transaction
-        const rawTransaction = await createRawTransaction(filteredUtxos, feeMedium, totalInputAmount);
+        const rawTransaction = await createRawTransaction(filteredUtxos, feeFinal, totalInputAmount);
         console.log('Raw transaction:', JSON.stringify(rawTransaction, null, 2));
+
+        // Example of using tatum api endpoint to sign tx
+        // const signedTransactionResponse = await signTransaction(rawTransaction) as SignedTransactionResponse;
         const signedTransactionResponse = await signTransaction(rawTransaction) as SignedTransactionResponse;
         const signedTransaction = signedTransactionResponse.result.hex;
         console.log('Signed transaction:', signedTransaction);
@@ -269,8 +283,7 @@ async function main() {
 
         // Broadcast the transaction
         await broadcastTransaction(signedTransaction);
-        console.log('Transaction broadcasted successfully.');
-
+        
     } else {
         console.log('Unable to create a transaction with enough btc from UTXOs:');
         console.log(JSON.stringify(filteredUtxos, null, 2));
