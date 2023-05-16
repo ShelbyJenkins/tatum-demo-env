@@ -23,6 +23,7 @@ Tatum as a platform consists of:
   * Open Source
   * JS/TS, C#, and PHP
   * Unified interfaces across all protocols
+    * So an open source project made with Tatum can be forked by anyone building on an EVM
 * An API
   * Feature rich (600+ endpoints!)
   * 
@@ -48,7 +49,7 @@ Now, to the demo.
 
 # The Tatum API
 * Free and permissionless API and RPC Access.
-* From five request per second to five thousand.
+  * From five request per second to five thousand.
 ## Make an API Call 
 Make CURL calls with 
 * Terminal
@@ -68,7 +69,21 @@ or run
 
 `pnpm install @tatumcom/js`
 
-## Demo Project
+## Demo
+### RPC
+https://docs.tatum.com/docs/rpc-api-reference
+
+JSON-RPC
+  * Easy to start
+
+SDK RPC
+* Unified interface across chain allows for composibility and templatization
+
+### Notifications
+https://docs.tatum.com/docs/notifications
+
+* https://webhook.site/
+* run code and wait
 
 ## A note about SDK versions
 Tatum is currently migrating to the v3 version of the SDK. It focuses on simplifying development by unifying the interfaces used to interact with blockchains. 

@@ -6,9 +6,19 @@
 curl -i -X GET \
   'https://api.tatum.io/v3/data/blocks/latest?chain=celo-testnet' \
 
-### https://apidoc.tatum.io/tag/Celo#operation/CeloGetTransactionByAddress
-curl -i -X GET \
-  'https://api.tatum.io/v3/celo/account/transaction/0xefB84935239dAcdecF7c5bA76d8dE40b077B7b33?pageSize=10' \
-  -H "x-api-key": "{{$TATUMCOM_API_KEY}}"
 
-# Features
+
+# RPC
+
+###  https://apidoc.tatum.io/tag/Node-RPC
+curl -i -X POST \
+  https://api.tatum.io/v3/blockchain/node/celo-testnet/ \
+  -H 'Content-Type: application/json' \
+  # -H "x-api-key": "{{$TATUMIO_API_KEY}}"
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "eth_blockNumber",
+    "params": [],
+    "id": 2
+  }'
+
