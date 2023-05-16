@@ -1,19 +1,29 @@
-# Tatum
+# Usage
 
-## Follow along with this doc 
-here -> https://github.com/ShelbyJenkins/tatum-env
+This guide is available here: https://github.com/ShelbyJenkins/tatum-demo-env
+
+* Install dependencies:
+  * VSCode + Dev Containers Extension
+  * Docker Desktop
+* Clone this repo
+* Open dev container from folder
+* `npm install` to install remaining dependencies
+
+Neat.
+
+# About Tatum
 
 ## Who
 
-Shelby is a solutions engineer team at Tatum.
+Shelby is a solutions engineer on the team at Tatum.
 
 ## Why
 
 Tatum is fanatical about the developer experience. Our goal is to enable developers to quickly build and scale web3 apps.
 
-Conceptually, a blockchain is just a special kind of database. Call it a decentralized database or an open ledger or a public db. Ultimatiely, in the web3 tech stack the blockchain functions as a database. This is a revolutionary new way to build, but building with the blockchain doesn't have to require a revolution in a developers life. 
+Conceptually, a blockchain is just a special kind of database. Call it a decentralized database or an open ledger or a public DB. Ultimately, in the web3 tech stack, the blockchain functions as a database. This is a revolutionary new way to build, but building with the blockchain doesn't have to require a revolution in a developer's life.
 
-The Tatum platform abstracts away the challenges of working with blockchains, and lets developers treat the blockchain just like any other traditional database in their tech stack. We do this by providing coverage for the core technical requirments of blockchain use cases. By abstracting away the specifics of blochkain development, devs are able to build their revolutionary new web3 app and scale to the enteprise level.
+The Tatum platform abstracts away the challenges of working with blockchains, and lets developers treat the blockchain just like any other traditional database in their tech stack. We do this by providing coverage for the core technical requirements of blockchain use cases. By abstracting away the specifics of blockchain development, devs are able to build their revolutionary new web3 app and scale to the enterprise level.
 
 ## How
 
@@ -23,14 +33,14 @@ Tatum as a platform consists of:
   * Open Source
   * JS/TS, C#, and PHP
   * Unified interfaces across all protocols
-    * So an open source project made with Tatum can be forked by anyone building on an EVM
+    * So an open-source project made with Tatum can be forked by anyone building on an EVM
 * An API
-  * Feature rich (600+ endpoints!)
-  * 
-* Data Infrastrcture
-  *  RPC nodes with elastic scalability, redundancy, and global distribution
-  *  Archive nodes with full funtionality
-  *  Indexed and cached blockchain historical data for quick and economical retrivial 
+  * Feature-rich (600+ endpoints!)
+  
+* Data Infrastructure
+  * RPC nodes with elastic scalability, redundancy, and global distribution
+  * Archive nodes with full functionality
+  * Indexed and cached blockchain historical data for quick and economical retrieval
 
 ## What
 
@@ -49,7 +59,7 @@ Now, to the demo.
 
 # The Tatum API
 * Free and permissionless API and RPC Access.
-  * From five request per second to five thousand.
+  * From five requests per second to five thousand.
 ## Make an API Call 
 Make CURL calls with 
 * Terminal
@@ -77,7 +87,7 @@ JSON-RPC
   * Easy to start
 
 SDK RPC
-* Unified interface across chain allows for composibility and templatization
+* Unified interface across chain allows for composability and templatization
 
 ### Notifications
 https://docs.tatum.com/docs/notifications
@@ -86,15 +96,15 @@ https://docs.tatum.com/docs/notifications
 * run code and wait
 
 ## A note about SDK versions
-Tatum is currently migrating to the v3 version of the SDK. It focuses on simplifying development by unifying the interfaces used to interact with blockchains. 
+Tatum is currently migrating to the v3 version of the SDK. It focuses on simplifying development by unifying the interfaces used to interact with blockchains.
 
-This new SDK is the current live version on github and is supported by the docs at tatum.com.
+This new SDK is the current live version on GitHub and is supported by the docs at tatum.com.
 
-Currently, not all features from the v2 SDK are implemented in the new SDK. If you're interested in a feature documented in the tatum.io docs, you may consider using the v2 sdk for the time being.
+Currently, not all features from the v2 SDK are implemented in the new SDK. If you're interested in a feature documented in the tatum.io docs, you may consider using the v2 SDK for the time being.
 
 # Tatum Blockchain Building Blocks
 ## Get an API Key
-[Free one click access with your google or github account](https://tatum.com/)
+[Free one-click access with your Google or GitHub account](https://tatum.com/)
 
 
 ## Data-API
@@ -106,7 +116,7 @@ Currently, not all features from the v2 SDK are implemented in the new SDK. If y
 ### NFT Express
 ### Marketplaces and Exchanges
 
-## Account Managment
+## Account Management
 ### KMS
 ### Gas Pump
 ### Virtual Accounts
@@ -136,5 +146,3 @@ Currently, not all features from the v2 SDK are implemented in the new SDK. If y
 [Tatum Supported Networks](https://github.com/tatumio/tatum-js/blob/master/src/dto/Network.ts)
 
 https://explorer.celo.org/mainnet/
-
-
