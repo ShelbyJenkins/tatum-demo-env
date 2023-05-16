@@ -1,0 +1,14 @@
+# Calls using the REST Client VScode extension
+
+# Intro
+
+### https://apidoc.tatum.io/tag/Data-API
+curl -i -X GET \
+  'https://api.tatum.io/v3/data/blocks/latest?chain=celo-testnet' \
+
+### https://apidoc.tatum.io/tag/Celo#operation/CeloGetTransactionByAddress
+curl -i -X GET \
+  'https://api.tatum.io/v3/celo/account/transaction/0xefB84935239dAcdecF7c5bA76d8dE40b077B7b33?pageSize=10' \
+  -H "x-api-key": "{{$TATUMCOM_API_KEY}}"
+
+# Features

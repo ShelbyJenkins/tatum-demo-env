@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "debug with ts-node",
+        "skipFiles": ["<node_internals>/**"],
+        "runtimeArgs": [
+          "--no-warnings",
+          "-r",
+          "ts-node/register",
+          "--loader",
+          "ts-node/esm"
+        ],
+        "env": { "TS_NODE_FILES": "true" },
+        "program": "${workspaceFolder}/${relativeFile}",
+        "sourceMaps": true,
+        "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+        "console": "integratedTerminal",
+        "outputCapture": "std"
+      }
+    ]
+  }
+  

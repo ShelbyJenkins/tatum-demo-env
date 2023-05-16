@@ -3,11 +3,22 @@
 {
 	"name": "Default Linux Universal",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/universal:2-linux"
+	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"genieai.chatgpt-vscode",
+				"WallabyJs.quokka-vscode",
+				"xabikos.JavaScriptSnippets",
+				"ms-vscode.vscode-typescript-next",
+				"humao.rest-client",
+				"yzhang.markdown-all-in-one"
+			]
+		}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
