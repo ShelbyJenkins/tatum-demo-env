@@ -23,9 +23,9 @@ function getEnv(key: string): string {
   }
 
 // Pick a wallet "0", "1", "2"
-const senderAddress: string = getEnv('WALLET_1_ADDRESS');
-const senderPrivateKey: string = getEnv('WALLET_1_PRIVATEKEY');
-const receiverAddress: string = getEnv('WALLET_2_ADDRESS');
+const senderAddress: string = getEnv('BTC_WALLET_1_ADDRESS');
+const senderPrivateKey: string = getEnv('BTC_WALLET_1_PRIVATEKEY');
+const receiverAddress: string = getEnv('BTC_WALLET_2_ADDRESS');
 const apiKey: string = getEnv('TATUMIO_TESTNET_API_KEY');
 
 // Define Interfaces
