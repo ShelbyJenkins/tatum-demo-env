@@ -1,9 +1,10 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/universal
 {
-	"name": "Default Linux Universal",
+	"name": "tatum-dev-env",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+	"remoteUser": "root",
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -12,7 +13,8 @@
 				"xabikos.JavaScriptSnippets",
 				"ms-vscode.vscode-typescript-next",
 				"humao.rest-client",
-				"yzhang.markdown-all-in-one"
+				"yzhang.markdown-all-in-one",
+				"zainchen.json"
 			]
 		}
 	},
