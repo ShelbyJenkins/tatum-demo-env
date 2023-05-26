@@ -26,9 +26,9 @@ interface Wallet {
 
 const walletFile = {
   wallets: [
-    { name: "WALLET_0", address: "" },
-    { name: "WALLET_1", address: "" },
-    { name: "WALLET_2", address: "" },
+    { name: "BTC_WALLET_0", address: "" },
+    { name: "BTC_WALLET_1", address: "" },
+    { name: "BTC_WALLET_2", address: "" },
   ],
 };
 

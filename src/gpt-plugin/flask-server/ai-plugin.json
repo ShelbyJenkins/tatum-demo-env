@@ -1,0 +1,19 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Tatum API Plugin",
+  "name_for_model": "tatumapi",
+  "description_for_human": "Plugin for interacting with Tatum API.",
+  "description_for_model": "Plugin for interacting with Tatum API.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://127.0.0.1:3333/openai_tatum.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://api.tatum.io/logo.png",
+  "contact_email": "support@tatum.io",
+  "legal_info_url": "https://api.tatum.io/legal"
+}
+  
